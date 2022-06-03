@@ -1,9 +1,15 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"strconv"
 	"sync/atomic"
+
+	"github.com/RaymondCode/simple-demo/middleware"
+	"github.com/RaymondCode/simple-demo/service"
+	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-gonic/gin"
 )
 
 // usersLoginInfo use map to store user info, and key is username+password for demo
@@ -77,12 +83,20 @@ func Login(c *gin.Context) {
 }
 
 func UserInfo(c *gin.Context) {
-	token := c.Query("token")
+	claims := jwt.ExtractClaims(c)
+	userId := int(claims[middleware.IdentityKey].(float64)) //坑:这个是 float64
+	log.Println("用户id:", userId)
 
-	if user, exist := usersLoginInfo[token]; exist {
+	if user, err := service.GetUserInfo(strconv.Itoa(userId)); err == nil {
 		c.JSON(http.StatusOK, UserResponse{
 			Response: Response{StatusCode: 0},
-			User:     user,
+			User: User{
+				Id:            int64(user.ID),
+				Name:          user.NickName,
+				FollowCount:   10,
+				FollowerCount: 5,
+				IsFollow:      true,
+			},
 		})
 	} else {
 		c.JSON(http.StatusOK, UserResponse{

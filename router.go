@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/RaymondCode/simple-demo/controller"
+	"github.com/RaymondCode/simple-demo/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,12 +11,16 @@ func initRouter(r *gin.Engine) {
 	r.Static("/static", "./public")
 
 	apiRouter := r.Group("/douyin")
+	authMiddleware, _ := middleware.JwtInit()
 
-	// basic apis
+	apiRouter.POST("/user/login/", authMiddleware.LoginHandler)
+
+	user := apiRouter.Group("/user")
+	user.Use(authMiddleware.MiddlewareFunc())
+	user.GET("/", controller.UserInfo)
+
 	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.GET("/user/", controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.Register)
-	apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.POST("/publish/action/", controller.Publish)
 	apiRouter.GET("/publish/list/", controller.PublishList)
 
