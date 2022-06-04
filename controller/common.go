@@ -1,9 +1,10 @@
 package controller
 
-type Response struct {
-	StatusCode int32  `json:"status_code"`
-	StatusMsg  string `json:"status_msg,omitempty"`
-}
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Video struct {
 	Id            int64  `json:"id,omitempty"`
@@ -28,4 +29,8 @@ type User struct {
 	FollowCount   int64  `json:"follow_count,omitempty"`
 	FollowerCount int64  `json:"follower_count,omitempty"`
 	IsFollow      bool   `json:"is_follow,omitempty"`
+}
+
+func SendResp(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, data)
 }

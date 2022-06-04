@@ -11,12 +11,12 @@ func initRouter(r *gin.Engine) {
 	r.Static("/static", "./public")
 
 	apiRouter := r.Group("/douyin")
-	authMiddleware, _ := middleware.JwtInit()
+	middleware.JwtInit()
 
-	apiRouter.POST("/user/login/", authMiddleware.LoginHandler)
+	apiRouter.POST("/user/login/", middleware.AuthMiddleware.LoginHandler)
 
 	user := apiRouter.Group("/user")
-	user.Use(authMiddleware.MiddlewareFunc())
+	user.Use(middleware.AuthMiddleware.MiddlewareFunc())
 	user.GET("/", controller.UserInfo)
 
 	apiRouter.GET("/feed/", controller.Feed)
